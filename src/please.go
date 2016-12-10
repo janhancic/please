@@ -38,6 +38,7 @@ var config *core.Configuration
 var opts struct {
 	BuildFlags struct {
 		Config     string            `short:"c" long:"config" description:"Build config to use. Defaults to opt."`
+		Arch       string            `short:"a" long:"arch" description:"Architecture to compile for. Defaults to the system Please is compiled for."`
 		RepoRoot   string            `short:"r" long:"repo_root" description:"Root of repository to build."`
 		KeepGoing  bool              `short:"k" long:"keep_going" description:"Don't stop on first failed target."`
 		NumThreads int               `short:"n" long:"num_threads" description:"Number of concurrent build operations. Default is number of CPUs + 2."`

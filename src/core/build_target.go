@@ -125,6 +125,9 @@ type BuildTarget struct {
 	// Extra output files from the test.
 	// These are in addition to the usual test.results output file.
 	TestOutputs []string
+	// Architecture this target is for.
+	// N.B. This is a combined form, e.g. "linux_amd64", which isn't quite the same as Go's terminology.
+	Arch string
 }
 
 type depInfo struct {
