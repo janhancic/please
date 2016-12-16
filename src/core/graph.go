@@ -31,8 +31,7 @@ func (graph *BuildGraph) AddTarget(target *BuildTarget) *BuildTarget {
 	}
 	graph.targets[target.Label] = target
 	// Check these reverse deps which may have already been added against this target.
-	revdeps, present := graph.pendingRevDeps[target.Label]
-	if present {
+	if revdeps, present := graph.pendingRevDeps[target.Label]; present {
 		for revdep, originalTarget := range revdeps {
 			if originalTarget != nil {
 				graph.linkDependencies(graph.targets[revdep], originalTarget)
@@ -172,7 +171,12 @@ func (graph *BuildGraph) AllDependenciesResolved(target *BuildTarget) bool {
 // reverse dependency in the other direction.
 // This is complicated somewhat by the require/provide mechanism which is resolved at this
 // point, but some of the dependencies may not yet exist.
+// Also at this point we resolve any architecture differences if cross-compiling is needed.
 func (graph *BuildGraph) linkDependencies(fromTarget, toTarget *BuildTarget) {
+	if fromTarget.Label.Arch != "" && !fromTarget.IsTool(toTarget.Label) {
+		// Source dependency from a target that's not being built for the host.
+		toTarget = graph.cloneTargetForArch(toTarget, fromTarget.Label.Arch)
+	}
 	for _, label := range toTarget.ProvideFor(fromTarget) {
 		target, present := graph.targets[label]
 		if present {
@@ -184,7 +188,20 @@ func (graph *BuildGraph) linkDependencies(fromTarget, toTarget *BuildTarget) {
 	}
 }
 
+// cloneTargetForArch returns a build target for the given architecture. It's otherwise
+// identical to the original one.
+func (graph *BuildGraph) cloneTargetForArch(target *BuildTarget, arch string) *BuildTarget {
+	t, present := graph.targets[target.Label.toArch(arch)]
+	if present {
+		return t
+	}
+	t = target.toArch(arch)
+	graph.targets[t.Label] = t
+	return t
+}
+
 func (graph *BuildGraph) addPendingRevDep(from, to BuildLabel, orig *BuildTarget) {
+	to.Arch = "" // Pending revdeps never have an associated architecture.
 	if deps, present := graph.pendingRevDeps[to]; present {
 		deps[from] = orig
 	} else {

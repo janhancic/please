@@ -791,6 +791,15 @@ func (target *BuildTarget) HasParent() bool {
 	return target.Label.Parent() != target.Label
 }
 
+// toArch returns a new target that's a copy of this one for a different architecture.
+func (target *BuildTarget) toArch(arch string) *BuildTarget {
+	var t BuildTarget
+	// TODO(pebers): do we need a deep copy here or is shallow sufficient?
+	t = *target
+	t.Label.Arch = arch
+	return &t
+}
+
 // Make slices of these guys sortable.
 type BuildTargets []*BuildTarget
 

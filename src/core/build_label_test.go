@@ -57,3 +57,10 @@ func TestString(t *testing.T) {
 	label = BuildLabel{PackageName: "src/core", Name: "core", Arch: "test_x86"}
 	assert.Equal(t, "//src/core:core [test_x86]", label.String())
 }
+
+func TestToArch(t *testing.T) {
+	label1 := BuildLabel{PackageName: "src/core", Name: "core"}
+	label2 := label1.toArch("test_x86")
+	assert.Equal(t, "", label1.Arch)
+	assert.Equal(t, "test_x86", label2.Arch)
+}

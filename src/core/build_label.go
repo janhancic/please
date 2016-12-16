@@ -20,7 +20,7 @@ var log = logging.MustGetLogger("core")
 type BuildLabel struct {
 	PackageName string
 	Name        string
-	// Architecture this target is for.
+	// Architecture this target is for. The empty string implies the host architecture.
 	// Note that there is no way of specifying this on input, it's implicit based on what context the target is used in.
 	Arch string
 }
@@ -300,6 +300,12 @@ func (label BuildLabel) Parent() BuildLabel {
 // IsEmpty returns true if this is an empty build label, i.e. nothing's populated it yet.
 func (label BuildLabel) IsEmpty() bool {
 	return label.PackageName == "" && label.Name == ""
+}
+
+// toArch returns a new build label that's a copy of this one with a new architecture.
+func (label BuildLabel) toArch(arch string) BuildLabel {
+	label.Arch = arch
+	return label
 }
 
 // LooksLikeABuildLabel returns true if the string appears to be a build label, false if not.
