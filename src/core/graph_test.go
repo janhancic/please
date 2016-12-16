@@ -135,6 +135,19 @@ func TestArchitectureRevdeps(t *testing.T) {
 	assert.NotNil(t, graph.Target(target3.Label.toArch("test_x86")))
 }
 
+func TestArchitectureChecking(t *testing.T) {
+	target1 := makeTarget("//src/core:target1")
+	target2 := makeTarget("//src/core:target2")
+	target1.Label.Arch = "test_x86"
+	target2.Label.Arch = "test_amd64"
+	target1.AddDependency(target2.Label.toArch(""))
+
+	graph := NewGraph()
+	graph.AddTarget(target1)
+	graph.AddDependency(target1.Label, target2.Label.toArch(""))
+	assert.Panics(t, func() { graph.AddTarget(target2) })
+}
+
 // makeTarget creates a new build target for us.
 func makeTarget(label string, deps ...*BuildTarget) *BuildTarget {
 	target := NewBuildTarget(ParseBuildLabel(label, ""))

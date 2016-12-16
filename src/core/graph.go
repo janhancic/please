@@ -4,8 +4,11 @@
 
 package core
 
-import "sort"
-import "sync"
+import (
+	"fmt"
+	"sort"
+	"sync"
+)
 
 type BuildGraph struct {
 	// Map of all currently known targets by their label.
@@ -31,7 +34,7 @@ func (graph *BuildGraph) AddTarget(target *BuildTarget) *BuildTarget {
 	}
 	graph.targets[target.Label] = target
 	// Check these reverse deps which may have already been added against this target.
-	if revdeps, present := graph.pendingRevDeps[target.Label]; present {
+	if revdeps, present := graph.pendingRevDeps[target.Label.toArch("")]; present {
 		for revdep, originalTarget := range revdeps {
 			if originalTarget != nil {
 				graph.linkDependencies(graph.targets[revdep], originalTarget)
@@ -173,6 +176,9 @@ func (graph *BuildGraph) AllDependenciesResolved(target *BuildTarget) bool {
 // point, but some of the dependencies may not yet exist.
 // Also at this point we resolve any architecture differences if cross-compiling is needed.
 func (graph *BuildGraph) linkDependencies(fromTarget, toTarget *BuildTarget) {
+	if fromTarget.Label.Arch != "" && toTarget.Label.Arch != "" && fromTarget.Label.Arch != toTarget.Label.Arch {
+		panic(fmt.Sprintf("%s requires a dependency on %s, but it's not available for that architecture", fromTarget.Label, toTarget.Label.toArch("")))
+	}
 	if fromTarget.Label.Arch != "" && !fromTarget.IsTool(toTarget.Label) {
 		// Source dependency from a target that's not being built for the host.
 		toTarget = graph.cloneTargetForArch(toTarget, fromTarget.Label.Arch)
