@@ -20,6 +20,9 @@ var log = logging.MustGetLogger("core")
 type BuildLabel struct {
 	PackageName string
 	Name        string
+	// Architecture this target is for.
+	// Note that there is no way of specifying this on input, it's implicit based on what context the target is used in.
+	Arch string
 }
 
 // Build label that represents parsing the entire graph.
@@ -67,11 +70,13 @@ var relativeSubTargets = regexp.MustCompile(fmt.Sprintf("^(?:%s/)?(\\.\\.\\.)$",
 var packageNameOnly = regexp.MustCompile(fmt.Sprintf("^%s?$", packageName))
 var targetNameOnly = regexp.MustCompile(fmt.Sprintf("^%s$", targetName))
 
+// String prints the standard human-representable form of the label.
 func (label BuildLabel) String() string {
-	if label.Name != "" {
-		return "//" + label.PackageName + ":" + label.Name
+	s := "//" + label.PackageName + ":" + label.Name
+	if label.Arch != "" {
+		s += " [" + label.Arch + "]"
 	}
-	return "//" + label.PackageName
+	return s
 }
 
 // NewBuildLabel constructs a new build label from the given components. Panics on failure.

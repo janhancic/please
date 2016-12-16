@@ -50,3 +50,10 @@ func TestUnmarshalText(t *testing.T) {
 	assert.Equal(t, label.Name, "core")
 	assert.Error(t, label.UnmarshalText([]byte(":blahblah:")))
 }
+
+func TestString(t *testing.T) {
+	label := BuildLabel{PackageName: "src/core", Name: "core"}
+	assert.Equal(t, "//src/core:core", label.String())
+	label = BuildLabel{PackageName: "src/core", Name: "core", Arch: "test_x86"}
+	assert.Equal(t, "//src/core:core [test_x86]", label.String())
+}

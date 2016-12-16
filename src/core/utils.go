@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"syscall"
@@ -19,16 +20,22 @@ import (
 	"cli"
 )
 
-// Root of the repository
+// RepoRoot is the root of the repository
 var RepoRoot string
 
-// Initial working directory
+// InitialWorkingDir is the initial working directory we started in (shortly after start we chdir to the repo root).
 var initialWorkingDir string
 
 // Initial subdir of the working directory, ie. what package did we start in.
 var initialPackage string
 
+// DirPermissions are the permissions we give to newly created directories.
 const DirPermissions = os.ModeDir | 0775
+
+// HostArch is the host architecture of the machine.
+// This one is special because tools are always compiled for it, whereas theoretically the target architecture
+// can be basically anything.
+const HostArch = runtime.GOOS + "_" + runtime.GOARCH
 
 // FindRepoRoot returns the root directory of the current repo and sets the initial working dir.
 // Dies on failure if 'die' is set.
