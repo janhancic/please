@@ -224,21 +224,23 @@ func NewBuildTarget(label BuildLabel) *BuildTarget {
 }
 
 // TmpDir returns the temporary working directory for this target, eg.
-// //mickey/donald:goofy -> plz-out/tmp/mickey/donald/goofy._build
+// //mickey/donald:goofy -> plz-out/tmp/linux_amd64/mickey/donald/goofy._build
 // Note the extra subdirectory to keep rules separate from one another, and the .build suffix
 // to attempt to keep rules from duplicating the names of sub-packages; obviously that is not
 // 100% reliable but we don't have a better solution right now.
 func (target *BuildTarget) TmpDir() string {
-	return path.Join(TmpDir, target.Label.PackageName, target.Label.Name+buildDirSuffix)
+	return path.Join(TmpDir, target.Label.FullArch(), target.Label.PackageName, target.Label.Name+buildDirSuffix)
 }
 
 // Returns the output directory for this target, eg.
 // //mickey/donald:goofy -> plz-out/gen/mickey/donald (or plz-out/bin if it's a binary)
+// If the target is not for the host architecture it will have an extra directory after plz-out,
+// e.g. plz-out/linux_amd64/gen/mickey/donald
 func (target *BuildTarget) OutDir() string {
 	if target.IsBinary {
-		return path.Join(BinDir, target.Label.PackageName)
+		return path.Join(OutDir, target.Label.Arch, "bin", target.Label.PackageName)
 	} else {
-		return path.Join(GenDir, target.Label.PackageName)
+		return path.Join(OutDir, target.Label.Arch, "gen", target.Label.PackageName)
 	}
 }
 

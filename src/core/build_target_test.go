@@ -383,6 +383,24 @@ func TestToArch(t *testing.T) {
 	assert.Equal(t, []string{"src/core/target1.go"}, target2.AllLocalSources())
 }
 
+func TestTmpDir(t *testing.T) {
+	target := makeTarget("//src/core:target1", "")
+	assert.Equal(t, "plz-out/tmp/"+HostArch+"/src/core/target1._build", target.TmpDir())
+	target.Label.Arch = "test_x86"
+	assert.Equal(t, "plz-out/tmp/test_x86/src/core/target1._build", target.TmpDir())
+}
+
+func TestOutDir(t *testing.T) {
+	target := makeTarget("//src/core:target1", "")
+	assert.Equal(t, "plz-out/gen/src/core", target.OutDir())
+	target.IsBinary = true
+	assert.Equal(t, "plz-out/bin/src/core", target.OutDir())
+	target.Label.Arch = "test_x86"
+	assert.Equal(t, "plz-out/test_x86/bin/src/core", target.OutDir())
+	target.IsBinary = false
+	assert.Equal(t, "plz-out/test_x86/gen/src/core", target.OutDir())
+}
+
 func makeTarget(label, visibility string, deps ...*BuildTarget) *BuildTarget {
 	target := NewBuildTarget(ParseBuildLabel(label, ""))
 	if visibility == "PUBLIC" {

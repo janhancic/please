@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 	"syscall"
@@ -31,11 +30,6 @@ var initialPackage string
 
 // DirPermissions are the permissions we give to newly created directories.
 const DirPermissions = os.ModeDir | 0775
-
-// HostArch is the host architecture of the machine.
-// This one is special because tools are always compiled for it, whereas theoretically the target architecture
-// can be basically anything.
-const HostArch = runtime.GOOS + "_" + runtime.GOARCH
 
 // FindRepoRoot returns the root directory of the current repo and sets the initial working dir.
 // Dies on failure if 'die' is set.

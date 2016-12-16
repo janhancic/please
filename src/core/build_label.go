@@ -1,15 +1,21 @@
 package core
 
 import (
+	"fmt"
 	"path"
 	"regexp"
+	"runtime"
 	"strings"
 
-	"fmt"
 	"gopkg.in/op/go-logging.v1"
 )
 
 var log = logging.MustGetLogger("core")
+
+// HostArch is the host architecture of the machine.
+// This one is special because tools are always compiled for it, whereas theoretically the target architecture
+// can be basically anything.
+const HostArch = runtime.GOOS + "_" + runtime.GOARCH
 
 // Representation of an identifier of a build target, eg. //spam/eggs:ham
 // corresponds to BuildLabel{PackageName: spam/eggs name: ham}
@@ -306,6 +312,15 @@ func (label BuildLabel) IsEmpty() bool {
 func (label BuildLabel) toArch(arch string) BuildLabel {
 	label.Arch = arch
 	return label
+}
+
+// FullArch returns the full architecture, even if Arch is empty, in which case it will return
+// the host architecture.
+func (label BuildLabel) FullArch() string {
+	if label.Arch == "" {
+		return HostArch
+	}
+	return label.Arch
 }
 
 // LooksLikeABuildLabel returns true if the string appears to be a build label, false if not.
