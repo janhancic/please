@@ -274,25 +274,26 @@ func IsValidTargetName(name *C.char) bool {
 }
 
 //export AddTarget
-func AddTarget(pkgPtr uintptr, cName, cCmd, cTestCmd *C.char, binary, test, needsTransitiveDeps,
+func AddTarget(pkgPtr uintptr, cName, cCmd, cTestCmd, cArch *C.char, binary, test, needsTransitiveDeps,
 	outputIsComplete, containerise, noTestOutput, testOnly, stamp, filegroup bool,
 	flakiness, buildTimeout, testTimeout int, cBuildingDescription *C.char) (ret C.size_t) {
 	buildingDescription := ""
 	if cBuildingDescription != nil {
 		buildingDescription = C.GoString(cBuildingDescription)
 	}
-	return sizet(addTarget(pkgPtr, C.GoString(cName), C.GoString(cCmd), C.GoString(cTestCmd),
+	return sizet(addTarget(pkgPtr, C.GoString(cName), C.GoString(cCmd), C.GoString(cTestCmd), C.GoString(cArch),
 		binary, test, needsTransitiveDeps, outputIsComplete, containerise, noTestOutput,
 		testOnly, stamp, filegroup, flakiness, buildTimeout, testTimeout, buildingDescription))
 }
 
 // addTarget adds a new build target to the graph.
 // Separated from AddTarget to make it possible to test (since you can't mix cgo and go test).
-func addTarget(pkgPtr uintptr, name, cmd, testCmd string, binary, test, needsTransitiveDeps,
+func addTarget(pkgPtr uintptr, name, cmd, testCmd, arch string, binary, test, needsTransitiveDeps,
 	outputIsComplete, containerise, noTestOutput, testOnly, stamp, filegroup bool,
 	flakiness, buildTimeout, testTimeout int, buildingDescription string) *core.BuildTarget {
 	pkg := unsizep(pkgPtr)
 	target := core.NewBuildTarget(core.NewBuildLabel(pkg.Name, name))
+	target.Label.Arch = arch
 	target.IsBinary = binary
 	target.IsTest = test
 	target.NeedsTransitiveDependencies = needsTransitiveDeps

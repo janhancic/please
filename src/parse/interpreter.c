@@ -48,7 +48,7 @@ int InitialiseInterpreter(char* parser_location) {
   // TODO(pebers): it would be nicer if we could get rid of the explicit types here; something
   //               like reg("_add_target", typeof(AddTarget), AddTarget) would be sweet.
   //               As far as I know this is only possible in C++ using typeid though :(
-  reg("_add_target", "size_t (*)(size_t, char*, char*, char*, uint8, uint8, uint8, uint8, "
+  reg("_add_target", "size_t (*)(size_t, char*, char*, char*, char*, uint8, uint8, uint8, uint8, "
       "uint8, uint8, uint8, uint8, uint8, int64, int64, int64, char*)", AddTarget);
   reg("_add_src", "char* (*)(size_t, char*)", AddSource);
   reg("_add_data", "char* (*)(size_t, char*)", AddData);
