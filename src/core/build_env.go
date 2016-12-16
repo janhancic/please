@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"regexp"
-	"runtime"
 	"strings"
 )
 
@@ -25,9 +24,8 @@ func BuildEnvironment(state *BuildState, target *BuildTarget, test bool) []strin
 	sources := target.AllSourcePaths(state.Graph)
 	env := []string{
 		"PKG=" + target.Label.PackageName,
-		// Need to know these for certain rules, particularly Go rules.
-		"ARCH=" + runtime.GOARCH,
-		"OS=" + runtime.GOOS,
+		// This is set depending on which arch the rule is compiling for.
+		"ARCH=" + target.Label.FullArch(),
 		// Need this for certain tools, for example sass
 		"LANG=" + state.Config.Please.Lang,
 		// Use a restricted PATH; it'd be easier for the user if we pass it through
