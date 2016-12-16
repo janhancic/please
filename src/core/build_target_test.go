@@ -297,7 +297,7 @@ func TestAddDependency(t *testing.T) {
 	target2.AddDependency(target1.Label)
 	assert.Equal(t, []BuildLabel{target1.Label}, target2.DeclaredDependencies())
 	assert.Equal(t, []BuildLabel{}, target2.ExportedDependencies())
-	target2.AddMaybeExportedDependency(target1.Label, true)
+	target2.AddMaybeExportedDependency(target1.Label, true, false)
 	assert.Equal(t, []BuildLabel{target1.Label}, target2.DeclaredDependencies())
 	assert.Equal(t, []BuildLabel{target1.Label}, target2.ExportedDependencies())
 	assert.Equal(t, []*BuildTarget{}, target2.Dependencies())

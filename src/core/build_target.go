@@ -132,6 +132,7 @@ type depInfo struct {
 	deps     []*BuildTarget // list of actual deps
 	resolved bool           // has the graph resolved it
 	exported bool           // is it an exported dependency
+	tool     bool           // true if the dependency was from a tool
 }
 
 type BuildTargetState int32
@@ -681,17 +682,17 @@ func (target *BuildTarget) HasSource(source string) bool {
 
 // AddDependency adds a dependency to this target. It deduplicates against any existing deps.
 func (target *BuildTarget) AddDependency(dep BuildLabel) {
-	target.AddMaybeExportedDependency(dep, false)
+	target.AddMaybeExportedDependency(dep, false, false)
 }
 
 // AddMaybeExportedDependency adds a dependency to this target which may be exported. It deduplicates against any existing deps.
-func (target *BuildTarget) AddMaybeExportedDependency(dep BuildLabel, exported bool) {
+func (target *BuildTarget) AddMaybeExportedDependency(dep BuildLabel, exported, tool bool) {
 	if dep == target.Label {
 		log.Fatalf("Attempted to add %s as a dependency of itself.\n", dep)
 	}
 	info := target.dependencyInfo(dep)
 	if info == nil {
-		target.dependencies = append(target.dependencies, depInfo{declared: dep, exported: exported})
+		target.dependencies = append(target.dependencies, depInfo{declared: dep, exported: exported, tool: tool})
 	} else if exported {
 		info.exported = exported
 	}
