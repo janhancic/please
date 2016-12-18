@@ -28,13 +28,18 @@ type BuildGraph struct {
 func (graph *BuildGraph) AddTarget(target *BuildTarget) *BuildTarget {
 	graph.mutex.Lock()
 	defer graph.mutex.Unlock()
-	_, present := graph.targets[target.Label]
-	if present {
+	if _, present := graph.targets[target.Label]; present {
 		panic("Attempted to re-add existing target to build graph: " + target.Label.String())
 	}
-	graph.targets[target.Label] = target
+	noArchLabel := target.Label.toArch("")
+	graph.targets[noArchLabel] = target
+	if target.Label.Arch != "" {
+		// Helps some stuff out to keep this guy in the graph twice.
+		// TODO(pebers): are other bits of code (e.g. query) liable to be confused by this?
+		graph.targets[target.Label] = target
+	}
 	// Check these reverse deps which may have already been added against this target.
-	if revdeps, present := graph.pendingRevDeps[target.Label.toArch("")]; present {
+	if revdeps, present := graph.pendingRevDeps[noArchLabel]; present {
 		for revdep, originalTarget := range revdeps {
 			if originalTarget != nil {
 				graph.linkDependencies(graph.targets[revdep], originalTarget)
@@ -42,7 +47,7 @@ func (graph *BuildGraph) AddTarget(target *BuildTarget) *BuildTarget {
 				graph.linkDependencies(graph.targets[revdep], target)
 			}
 		}
-		delete(graph.pendingRevDeps, target.Label) // Don't need any more
+		delete(graph.pendingRevDeps, noArchLabel) // Don't need any more
 	}
 	return target
 }

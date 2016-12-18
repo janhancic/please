@@ -90,6 +90,7 @@ def genrule(name, cmd, srcs=None, out=None, outs=None, deps=None, visibility=Non
         srcs=srcs,
         outs=[out] if out else outs,
         cmd=cmd,
+        arch=arch,
         deps=deps,
         tools=tools,
         visibility = visibility,
