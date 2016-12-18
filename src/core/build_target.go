@@ -638,6 +638,8 @@ func (target *BuildTarget) getCommand(commands map[string]string, singleCommand 
 		return singleCommand
 	} else if command, present := commands[State.Config.Build.Config]; present {
 		return command // Has command for current config, good
+	} else if command, present := commands[State.Arch]; present {
+		return command // Has command for current architecture
 	} else if command, present := commands[State.Config.Build.FallbackConfig]; present {
 		return command // Has command for default config, fall back to that
 	}

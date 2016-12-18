@@ -57,6 +57,8 @@ type BuildState struct {
 		// Hash of the config relating to containerisation for tests.
 		Containerisation []byte
 	}
+	// Architecture we are currently compiling for (i.e. what the command-line flag was).
+	Arch string
 	// Level of verbosity during the build
 	Verbosity int
 	// Cache to store / retrieve old build results.
