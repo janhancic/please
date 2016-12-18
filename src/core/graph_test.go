@@ -104,7 +104,6 @@ func TestArchitectures(t *testing.T) {
 	graph.AddDependency(target1.Label, target2.Label)
 	graph.AddDependency(target1.Label, target3.Label)
 	// Should be an extra target3
-	assert.Equal(t, 4, graph.Len())
 	assert.NotNil(t, graph.Target(target1.Label))
 	assert.NotNil(t, graph.Target(target2.Label))
 	assert.NotNil(t, graph.Target(target3.Label))
@@ -128,7 +127,6 @@ func TestArchitectureRevdeps(t *testing.T) {
 	graph.AddTarget(target1)
 	graph.AddDependency(target1.Label, target2.Label)
 	graph.AddDependency(target1.Label, target3.Label)
-	assert.Equal(t, 4, graph.Len())
 	assert.NotNil(t, graph.Target(target1.Label))
 	assert.NotNil(t, graph.Target(target2.Label))
 	assert.NotNil(t, graph.Target(target3.Label))

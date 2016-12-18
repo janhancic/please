@@ -22,10 +22,16 @@ func ExpandHomePath(path string) string {
 // into the exec.Command calls made by plz. Use test=true for plz test targets.
 func BuildEnvironment(state *BuildState, target *BuildTarget, test bool) []string {
 	sources := target.AllSourcePaths(state.Graph)
+	os, arch := target.Label.OsArch()
 	env := []string{
 		"PKG=" + target.Label.PackageName,
 		// This is set depending on which arch the rule is compiling for.
 		"ARCH=" + target.Label.FullArch(),
+		// These provide cross-compiling support for Go.
+		// They aren't really Go-specific but it makes things a lot easier to just
+		// name them this from the beginning.
+		"GOOS=" + os,
+		"GOARCH=" + arch,
 		// Need this for certain tools, for example sass
 		"LANG=" + state.Config.Please.Lang,
 		// Use a restricted PATH; it'd be easier for the user if we pass it through

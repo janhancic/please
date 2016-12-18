@@ -71,3 +71,17 @@ func TestNoArch(t *testing.T) {
 	assert.Equal(t, "test_x86", label1.Arch)
 	assert.Equal(t, "", label2.Arch)
 }
+
+func TestOsArch(t *testing.T) {
+	label := BuildLabel{PackageName: "src/core", Name: "core", Arch: "test_x86"}
+	os, arch := label.OsArch()
+	assert.Equal(t, "test", os)
+	assert.Equal(t, "x86", arch)
+}
+
+func TestOsArchUnknownOs(t *testing.T) {
+	label := BuildLabel{PackageName: "src/core", Name: "core", Arch: "wibble"}
+	os, arch := label.OsArch()
+	assert.Equal(t, "", os)
+	assert.Equal(t, "wibble", arch)
+}

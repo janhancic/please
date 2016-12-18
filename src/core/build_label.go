@@ -329,6 +329,19 @@ func (label BuildLabel) FullArch() string {
 	return label.Arch
 }
 
+// OsArch attempts to break the label's architecture into a Go-style os/arch pair,
+// for example linux_amd64 -> (linux, amd64).
+// If that can't be determined (since Please's architectures are freeform) the returned OS
+// will be the empty string.
+func (label BuildLabel) OsArch() (string, string) {
+	arch := label.FullArch()
+	index := strings.IndexRune(arch, '_')
+	if index != -1 {
+		return arch[:index], arch[index+1:]
+	}
+	return "", arch
+}
+
 // LooksLikeABuildLabel returns true if the string appears to be a build label, false if not.
 // Useful for cases like rule sources where sources can be a filename or a label.
 func LooksLikeABuildLabel(str string) bool {
