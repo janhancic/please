@@ -140,11 +140,11 @@ func TestArchitectureChecking(t *testing.T) {
 	target2 := makeTarget("//src/core:target2")
 	target1.Label.Arch = "test_x86"
 	target2.Label.Arch = "test_amd64"
-	target1.AddDependency(target2.Label.toArch(""))
+	target1.AddDependency(target2.Label.noArch())
 
 	graph := NewGraph()
 	graph.AddTarget(target1)
-	graph.AddDependency(target1.Label, target2.Label.toArch(""))
+	graph.AddDependency(target1.Label, target2.Label.noArch())
 	assert.Panics(t, func() { graph.AddTarget(target2) })
 }
 

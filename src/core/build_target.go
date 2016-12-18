@@ -462,6 +462,7 @@ func (target *BuildTarget) resolveDependency(label BuildLabel, dep *BuildTarget)
 
 // dependencyInfo returns the information about a declared dependency, or nil if the target doesn't have it.
 func (target *BuildTarget) dependencyInfo(label BuildLabel) *depInfo {
+	label = label.noArch() // we never have architecture labels as *declared* dependencies.
 	for i, info := range target.dependencies {
 		if info.declared == label {
 			return &target.dependencies[i]

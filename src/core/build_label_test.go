@@ -64,3 +64,10 @@ func TestToArch(t *testing.T) {
 	assert.Equal(t, "", label1.Arch)
 	assert.Equal(t, "test_x86", label2.Arch)
 }
+
+func TestNoArch(t *testing.T) {
+	label1 := BuildLabel{PackageName: "src/core", Name: "core", Arch: "test_x86"}
+	label2 := label1.noArch()
+	assert.Equal(t, "test_x86", label1.Arch)
+	assert.Equal(t, "", label2.Arch)
+}

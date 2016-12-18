@@ -31,7 +31,7 @@ func (graph *BuildGraph) AddTarget(target *BuildTarget) *BuildTarget {
 	if _, present := graph.targets[target.Label]; present {
 		panic("Attempted to re-add existing target to build graph: " + target.Label.String())
 	}
-	noArchLabel := target.Label.toArch("")
+	noArchLabel := target.Label.noArch()
 	graph.targets[noArchLabel] = target
 	if target.Label.Arch != "" {
 		// Helps some stuff out to keep this guy in the graph twice.
@@ -157,7 +157,7 @@ func (graph *BuildGraph) ReverseDependencies(target *BuildTarget) []*BuildTarget
 	if revdeps, present := graph.revDeps[target.Label]; present {
 		return revdeps[:]
 	}
-	return []*BuildTarget{}
+	return nil
 }
 
 // AllDepsBuilt returns true if all the dependencies of a target are built.

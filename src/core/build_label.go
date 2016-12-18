@@ -314,6 +314,12 @@ func (label BuildLabel) toArch(arch string) BuildLabel {
 	return label
 }
 
+// noArch returns a new build label with no architecture.
+func (label BuildLabel) noArch() BuildLabel {
+	label.Arch = ""
+	return label
+}
+
 // FullArch returns the full architecture, even if Arch is empty, in which case it will return
 // the host architecture.
 func (label BuildLabel) FullArch() string {
