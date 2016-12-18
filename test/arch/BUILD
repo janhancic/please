@@ -12,3 +12,9 @@ genrule(
     outs = ['either_out'],
     cmd = 'echo $ARCH > $OUT',
 )
+
+sh_test(
+    name = 'cross_compile_test',
+    data = [':target_rule'],
+    src = 'cross_compile_test.sh',
+)
