@@ -65,8 +65,15 @@ func (graph *BuildGraph) AddPackage(pkg *Package) {
 // Target retrieves a target from the graph by label
 func (graph *BuildGraph) Target(label BuildLabel) *BuildTarget {
 	graph.mutex.RLock()
-	defer graph.mutex.RUnlock()
-	return graph.targets[label]
+	target := graph.targets[label]
+	graph.mutex.RUnlock()
+	if target == nil && label.Arch != "" {
+		// Specified an architecture, we might need to clone a target at this point.
+		graph.mutex.Lock()
+		defer graph.mutex.Unlock()
+		return graph.maybeCloneTargetForArch(label)
+	}
+	return target
 }
 
 // TargetOrDie retrieves a target from the graph by label. Dies if the target doesn't exist.
@@ -131,10 +138,13 @@ func (graph *BuildGraph) AddDependency(from BuildLabel, to BuildLabel) {
 	if fromTarget.hasResolvedDependency(to) {
 		return
 	}
-	toTarget, present := graph.targets[to]
+	toTarget := graph.targets[to]
+	if toTarget == nil {
+		toTarget = graph.maybeCloneTargetForArch(to)
+	}
 	// The dependency may not exist yet if we haven't parsed its package.
 	// In that case we stash it away for later.
-	if !present {
+	if toTarget == nil {
 		graph.addPendingRevDep(from, to, nil)
 	} else {
 		graph.linkDependencies(fromTarget, toTarget)
@@ -209,6 +219,19 @@ func (graph *BuildGraph) cloneTargetForArch(target *BuildTarget, arch string) *B
 	t = target.toArch(arch)
 	graph.targets[t.Label] = t
 	return t
+}
+
+// maybeCloneTargetForArch returns a build target for the given architecture, if a no-arch version
+// exists in the graph already.
+func (graph *BuildGraph) maybeCloneTargetForArch(label BuildLabel) *BuildTarget {
+	if label.Arch == "" {
+		return nil
+	}
+	target := graph.targets[label.noArch()]
+	if target == nil {
+		return nil
+	}
+	return graph.cloneTargetForArch(target, label.Arch)
 }
 
 func (graph *BuildGraph) addPendingRevDep(from, to BuildLabel, orig *BuildTarget) {

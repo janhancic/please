@@ -271,6 +271,21 @@ func (target *BuildTarget) DeclaredDependencies() []BuildLabel {
 	return ret
 }
 
+// DeclaredArchDependencies returns the original declaration of this target's dependencies,
+// adjusted to be the appropriate architecture.
+func (target *BuildTarget) DeclaredArchDependencies() []BuildLabel {
+	ret := make(BuildLabels, 0, len(target.dependencies))
+	for _, dep := range target.dependencies {
+		label := dep.declared
+		if !dep.tool {
+			label = label.toArch(target.Label.Arch)
+		}
+		ret = append(ret, label)
+	}
+	sort.Sort(ret)
+	return ret
+}
+
 // Dependencies returns the resolved dependencies of this target.
 func (target *BuildTarget) Dependencies() []*BuildTarget {
 	ret := make(BuildTargets, 0, len(target.dependencies))
@@ -567,6 +582,7 @@ func (target *BuildTarget) addSource(sources []BuildInput, source BuildInput) []
 	}
 	// Add a dependency if this is not just a file.
 	if label := source.Label(); label != nil {
+		source = label.toArch(target.Label.Arch)
 		target.AddDependency(*label)
 	}
 	return append(sources, source)

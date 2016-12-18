@@ -182,6 +182,7 @@ func (state *BuildState) KillAll() {
 
 // IsOriginalTarget returns true if a target is an original target, ie. one specified on the command line.
 func (state *BuildState) IsOriginalTarget(label BuildLabel) bool {
+	label = label.noArch() // Command-line labels can't have architectures specified.
 	for _, original := range state.OriginalTargets {
 		if original == label || (original.IsAllTargets() && original.PackageName == label.PackageName) {
 			return true
