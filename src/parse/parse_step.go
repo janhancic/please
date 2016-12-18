@@ -24,11 +24,11 @@ import (
 // 'include' and 'exclude' refer to the labels of targets to be added. If 'include' is non-empty then only
 // targets with at least one matching label are added. Any targets with a label in 'exclude' are not added.
 func Parse(tid int, state *core.BuildState, label, dependor core.BuildLabel, noDeps bool, include, exclude []string) {
-	//	defer func() {
-	//		if r := recover(); r != nil {
-	//			state.LogBuildError(tid, label, core.ParseFailed, fmt.Errorf("%s", r), "Failed to parse package")
-	//		}
-	//	}()
+	defer func() {
+		if r := recover(); r != nil {
+			state.LogBuildError(tid, label, core.ParseFailed, fmt.Errorf("%s", r), "Failed to parse package")
+		}
+	}()
 	// First see if this package already exists; once it's in the graph it will have been parsed.
 	pkg := state.Graph.Package(label.PackageName)
 	if pkg != nil {
@@ -53,6 +53,7 @@ func Parse(tid int, state *core.BuildState, label, dependor core.BuildLabel, noD
 		state.LogBuildResult(tid, label, core.PackageParsed, "Deferred")
 		return
 	}
+	activateTarget(state, pkg, label, dependor, noDeps, include, exclude)
 
 	// Now add any lurking pending targets for this package.
 	pendingTargetMutex.Lock()
@@ -61,8 +62,10 @@ func Parse(tid int, state *core.BuildState, label, dependor core.BuildLabel, noD
 	pendingTargetMutex.Unlock()                                        // Nothing will look up this package in the map again.
 	for targetName, dependors := range pending {
 		for _, dependor := range dependors {
-			lbl := core.BuildLabel{PackageName: label.PackageName, Name: targetName}
-			activateTarget(state, pkg, lbl, dependor, noDeps, include, exclude)
+			if targetName != label.Name {
+				lbl := core.BuildLabel{PackageName: label.PackageName, Name: targetName}
+				activateTarget(state, pkg, lbl, dependor, noDeps, include, exclude)
+			}
 		}
 	}
 	state.LogBuildResult(tid, label, core.PackageParsed, "Parsed")
